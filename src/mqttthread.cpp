@@ -2,6 +2,9 @@
 #include <iostream>
 #include "mqttthread.hpp"
 
+const char *offline_message = "offline";
+const char *online_message = "online";
+
 MQTTThread::~MQTTThread() {
 
 }
@@ -27,7 +30,23 @@ void MQTTThread::onConnect(struct mosquitto *mosq, int result) {
 	}
 }
 
-void MQTTThread::onMessage(struct mosquitto *mosq, const struct mosquitto_message *message) {
+void MQTTThread::onMessage(struct mosquitto *mosq __attribute__((__unused__)),
+						   const struct mosquitto_message *message) {
+	struct mosquitto_message *msg;
+	int err;
+	
+	msg = (struct mosquitto_message *)malloc(sizeof(struct mosquitto_message));
+	
+	if(msg == NULL) {
+		std::cerr << "Malloc() failed" << std::endl;
+	}
+	
+	if((err = mosquitto_message_copy(msg, message)) == MOSQ_ERR_SUCCESS) {	
+		emit messageReceived(msg);
+	} else {
+		std::cout << "Message Copy Failed: " << err << std::endl;
+	}
+	
 	if(message->payloadlen) {
 		std::cout << message->topic << ": " << (char *)message->payload << std::endl;
 	} else {
@@ -44,18 +63,17 @@ void MQTTThread::onSubscribe(struct mosquitto *mosq, int mid, int qos_count, con
 	std::cout << std::endl;
 }
 
-void MQTTThread::mainLoop() {
-	int rc;
-	const char *hostname = "localhost";
-	int port = 1883;
-	struct mosquitto *mosq = NULL;
-	int maj, min, patch;
+void MQTTThread::stop() {
+	stopThread = true;
+}
 
+void MQTTThread::startUp(QString hostname, int port, QString username) {
+	int rc;
+	struct mosquitto *mosq = NULL;
+
+	stopThread = false;
+	
 	mosquitto_lib_init();
-	
-	mosquitto_lib_version(&maj, &min, &patch);
-	
-	std::cout << "Mosquitto version: " << maj << "." << min << "." << patch << std::endl;
 	
 	mosq = mosquitto_new("MQTTalk", true, this);
 	if(!mosq) {
@@ -67,12 +85,27 @@ void MQTTThread::mainLoop() {
 	mosquitto_message_callback_set(mosq, &_on_message);
 	mosquitto_subscribe_callback_set(mosq, &_on_subscribe);
 	
-	if(mosquitto_connect(mosq, hostname, port, 60)) {
+	QString online_topic = QString("/user/") + username + QString("/status");
+	if((rc = mosquitto_will_set(mosq, online_topic.toStdString().c_str(), 
+						  strlen(offline_message),
+						  (const void *)offline_message, 1, true)) != MOSQ_ERR_SUCCESS) {
+		std::cerr << "setting will failed " << rc << std::endl;
+	}
+
+	if(mosquitto_connect(mosq, hostname.toStdString().c_str(), port, 60)) {
+		std::cerr << hostname.toStdString().c_str() << ":" << port << std::endl;
+		std::cerr << username.toStdString().c_str() << std::endl;
 		std::cerr << "Connect failed" << std::endl;
 		return;
 	}
 	
-	while(!mosquitto_loop(mosq, -1, 1)) { ;}
+	mosquitto_publish(mosq, NULL, online_topic.toStdString().c_str(),
+					  strlen(online_message),
+					  (const void *)online_message, 1, true);
+	
+	while(!mosquitto_loop(mosq, -1, 1)) { 
+		if(stopThread) break;
+	}
 	
 	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();

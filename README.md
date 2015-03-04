@@ -8,7 +8,8 @@ This is just for fun, I'm not suggesting you use it.
 Building this source
 --------------------
 
-You need to have libqt4-dev installed and qmake, you'll also need libmosquittopp0-dev.
+Requires libqt4-dev and qt4-qmake (package names from Ubuntu).
+Also needs a 1.3.x version of libmosquitto, you'll need the PPA if you're using 14.04.
 
     cd mqttalk
     qmake

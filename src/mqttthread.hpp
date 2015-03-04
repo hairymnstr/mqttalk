@@ -1,4 +1,5 @@
 #include <QObject>
+#include <QString>
 
 #ifndef MQTTTHREAD_H_
 #define MQTTTHREAD_H_
@@ -13,9 +14,14 @@ public:
 	void onSubscribe(struct mosquitto *mosq, int mid, int qos_count, const int *granted_qos);
 	
 public slots:
-	void mainLoop();
+	void startUp(QString hostname, int port, QString username);
+	void stop();
+	
+signals:
+	void messageReceived(struct mosquitto_message *message);
 	
 private:
+	bool stopThread;
 };
 
 #endif /* ifndef MQTTTHREAD_H_ */

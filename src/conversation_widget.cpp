@@ -1,7 +1,10 @@
 #include "conversation_widget.hpp"
 #include <iostream>
+
 ConversationWidget::ConversationWidget() {
 	conversation = new QTextEdit;
+	conversation->setReadOnly(true);
+	
 	layout = new QVBoxLayout;
 	
 	layout->addWidget(conversation);
@@ -10,12 +13,16 @@ ConversationWidget::ConversationWidget() {
 }
 
 void ConversationWidget::new_message(struct mosquitto_message* message) {
+	char *msg;
 	
-	std::cout << message->topic << ": " << (char *)message->payload << std::endl;
+	msg = (char *)malloc(message->payloadlen + 1);
+	memcpy(msg, message->payload, message->payloadlen);
+	msg[message->payloadlen] = 0;
+	
+	std::cout << message->topic << ": " << msg << std::endl;
+	
 	conversation->append(QString((const char *)message->topic));
-	conversation->append(QString("\n"));
-	conversation->append(QString((const char *)message->payload));
-	conversation->append(QString("\n"));
+	conversation->append(QString(msg));
 	
 	mosquitto_message_free(&message);
 }

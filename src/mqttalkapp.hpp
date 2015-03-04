@@ -1,6 +1,8 @@
 #include <QMainWindow>
-#include <QTextEdit>
 #include <QLabel>
+
+#include "mqtttalk_client.hpp"
+#include "conversation_widget.hpp"
 
 class MQTTalkApp : public QMainWindow {
   Q_OBJECT
@@ -8,11 +10,9 @@ class MQTTalkApp : public QMainWindow {
   public:
     MQTTalkApp();
 
-  protected:
-    void closeEvent(QCloseEvent *event);
-
   private:
-    QTextEdit *chatWidget;
+    ConversationWidget *chatWidget;
     QLabel *connectionStatusLabel;
+    MQTTalkClient *mqttalk_client;
 };
 

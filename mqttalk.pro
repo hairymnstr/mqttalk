@@ -8,6 +8,6 @@ DEPENDPATH += . src
 INCLUDEPATH += . src
 
 # Input
-HEADERS += src/mqttalkapp.hpp src/mqttclient.hpp
-SOURCES += src/main.cpp src/mqttalkapp.cpp src/mqttclient.cpp
-LIBS += -lmosquittopp
+HEADERS += src/mqttalkapp.hpp src/mqttthread.hpp src/mqtthandler.hpp src/conversation_widget.hpp src/mqtttalk_client.hpp
+SOURCES += src/main.cpp src/mqttalkapp.cpp src/mqttthread.cpp src/mqtthandler.cpp src/conversation_widget.cpp src/mqtttalk_client.cpp
+LIBS += -lmosquitto -lqjson
