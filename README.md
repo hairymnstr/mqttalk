@@ -15,3 +15,6 @@ Building on Ubuntu 18.04:
     qmake
     make
 
+It's not publishing messages itself, to test functionality so far I used:
+
+    mosquitto_pub -t test -m "{\"message_id\": 123, \"time\": \"2019-10-20 14:33:14 +0100\", \"sender\": \"tester\", \"message\": \"one two three...\"}"
