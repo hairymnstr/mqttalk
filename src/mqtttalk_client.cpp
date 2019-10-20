@@ -26,7 +26,7 @@ MQTTalkClient::MQTTalkClient(QString username, QString hostname, int port) {
 void MQTTalkClient::messageReceived(struct mosquitto_message *message) {
         
         QByteArray json = QByteArray((const char *)message->payload, message->payloadlen);
-        
+
         QJson::Parser parser;
         
         bool ok;
@@ -38,6 +38,9 @@ void MQTTalkClient::messageReceived(struct mosquitto_message *message) {
             qDebug() << "time" << result["time"].toString();
             qDebug() << "sender" << result["sender"].toString();
             qDebug() << "message" << result["message"].toString();
+
+            qDebug() << "emitting...";
+            emit new_message(result);
         }
 	
 	std::cout << message->topic << ": " << QString(json).toStdString() << std::endl;

@@ -8,11 +8,10 @@ This is just for fun, I'm not suggesting you use it.
 Building this source
 --------------------
 
-Requires libqt4-dev and qt4-qmake (package names from Ubuntu).
-Also needs a 1.3.x version of libmosquitto, you'll need the PPA if you're using 14.04.
+Building on Ubuntu 18.04:
 
+    sudo apt install qt4-qmake libqt4-dev libqjson-dev libmosquitto-dev
     cd mqttalk
     qmake
     make
-
 

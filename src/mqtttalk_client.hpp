@@ -1,5 +1,6 @@
 #include <QThread>
 #include <QString>
+#include <QVariant>
 #include "mosquitto.h"
 #include "mqttthread.hpp"
 
@@ -11,6 +12,9 @@ class MQTTalkClient : public QObject {
 
 public slots:
 	void messageReceived(struct mosquitto_message *message);
+
+  signals:
+    void new_message(const QVariantMap&);
 	
   private:
 	QString username;

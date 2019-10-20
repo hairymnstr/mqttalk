@@ -1,3 +1,4 @@
+#include <QtGui>
 #include "conversation_widget.hpp"
 #include <iostream>
 
@@ -12,17 +13,11 @@ ConversationWidget::ConversationWidget() {
 	setLayout(layout);
 }
 
-void ConversationWidget::new_message(struct mosquitto_message* message) {
-	char *msg;
+void ConversationWidget::new_message(const QVariantMap & message) {
+    qDebug() << "received signal...";
+	std::cout << message["sender"].toString().toStdString() << ": " << message["message"].toString().toStdString() << std::endl;
 	
-	msg = (char *)malloc(message->payloadlen + 1);
-	memcpy(msg, message->payload, message->payloadlen);
-	msg[message->payloadlen] = 0;
-	
-	std::cout << message->topic << ": " << msg << std::endl;
-	
-	conversation->append(QString((const char *)message->topic));
-	conversation->append(QString(msg));
-	
-	mosquitto_message_free(&message);
+    conversation->append(message["sender"].toString());
+    conversation->append(QString(": "));
+	conversation->append(message["message"].toString());
 }
